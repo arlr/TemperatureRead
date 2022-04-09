@@ -23,6 +23,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "DHT.h"
+
+#include "ssd1306.h"
+#include "fonts.h"
+#include "test.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,6 +48,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
@@ -50,8 +60,10 @@ TIM_HandleTypeDef htim2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
+void updateScreen(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -89,7 +101,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  SSD1306_Init (); // initialize the display
+  HAL_TIM_PeriodElapsedCallback(&htim2); // Call the function to read temp a first time to get a result as soon the power one is done
   HAL_TIM_Base_Start_IT(&htim2);	// Start the Timer
 
   /* USER CODE END 2 */
@@ -99,6 +114,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
+
 
     /* USER CODE BEGIN 3 */
   }
@@ -138,6 +155,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -223,9 +274,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		  DHT_GetData(&DHT11_Data);
 		  Temperature = DHT11_Data.Temperature;
 		  Humidity = DHT11_Data.Humidity;
+		  updateScreen();
 	  }
 }
 
+void updateScreen(void){
+	char line[20];
+
+	//Right Temperature
+	sprintf(line, "Temp: %3.2f C", Temperature);
+	SSD1306_GotoXY (10,10); // goto 10, 10
+	SSD1306_Puts (line, &Font_11x18, 1);
+
+	// Right humidity
+	sprintf(line, "Humi: %2.2f", Humidity);
+	SSD1306_GotoXY (10, 30);
+	SSD1306_Puts (line, &Font_11x18, 1);
+	SSD1306_UpdateScreen(); // update screen
+
+}
 /* USER CODE END 4 */
 
 /**
