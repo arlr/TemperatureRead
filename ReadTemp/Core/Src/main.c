@@ -28,6 +28,9 @@
 #include "fonts.h"
 #include "test.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +63,7 @@ static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
+void updateScreen(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -110,11 +114,7 @@ int main(void)
     /* USER CODE END WHILE */
 
 
-	  SSD1306_GotoXY (10,10); // goto 10, 10
-	  SSD1306_Puts ("HELLO", &Font_11x18, 1); // print Hello
-	  SSD1306_GotoXY (10, 30);
-	  SSD1306_Puts ("WORLD !!", &Font_11x18, 1);
-	  SSD1306_UpdateScreen(); // update screen
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -272,9 +272,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		  DHT_GetData(&DHT11_Data);
 		  Temperature = DHT11_Data.Temperature;
 		  Humidity = DHT11_Data.Humidity;
+		  updateScreen();
 	  }
 }
 
+void updateScreen(void){
+	char line[20];
+
+	//Right Temperature
+	sprintf(line, "Temp: %3.2f C", Temperature);
+	SSD1306_GotoXY (10,10); // goto 10, 10
+	SSD1306_Puts (line, &Font_11x18, 1);
+
+	// Right humidity
+	sprintf(line, "Humi: %2.2f", Humidity);
+	SSD1306_GotoXY (10, 30);
+	SSD1306_Puts (line, &Font_11x18, 1);
+	SSD1306_UpdateScreen(); // update screen
+
+}
 /* USER CODE END 4 */
 
 /**
