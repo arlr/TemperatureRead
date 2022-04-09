@@ -103,8 +103,10 @@ int main(void)
   MX_TIM2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start_IT(&htim2);	// Start the Timer
   SSD1306_Init (); // initialize the display
+  HAL_TIM_PeriodElapsedCallback(&htim2); // Call the function to read temp a first time to get a result as soon the power one is done
+  HAL_TIM_Base_Start_IT(&htim2);	// Start the Timer
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
