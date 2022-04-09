@@ -115,8 +115,6 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -147,7 +145,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -267,6 +265,7 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	  // Check which version of the timer triggered this callback and toggle LED
 	//Timer Time = Clk * prescaler * (autoreload + 1)
+	HAL_PWR_EnableSleepOnExit (); // Sleep when not in this routine
 	  if (htim == &htim2 )
 	  {
 		  //HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, HAL_GPIO_ReadPin(COLD_PIN_GPIO_Port, COLD_PIN_Pin));
@@ -275,6 +274,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		  Temperature = DHT11_Data.Temperature;
 		  Humidity = DHT11_Data.Humidity;
 		  updateScreen();
+
+
+
 	  }
 }
 
